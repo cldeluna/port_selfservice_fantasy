@@ -1,7 +1,7 @@
 # Simplifying Network Automation with NetGru
 ## *... with Cisco DevNet's **Adrian Iliesiu***
 
-### Network Port Self Service - Its not a fantasy
+### Network Port Self Service - It's not a fantasy
 
 *Claudia de Luna*
 
