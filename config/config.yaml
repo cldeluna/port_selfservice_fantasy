@@ -1,0 +1,40 @@
+
+cookie:
+  expiry_days: 30
+  key: network_dashboard_2025
+  name: network_dashboard_cookie
+credentials:
+  usernames:
+    awhite:
+      email: awhite@uwaco.net
+      failed_login_attempts: 0 # Will be managed automatically
+      first_name: Alice
+      last_name: White
+      logged_in: False # Will be managed automatically
+      role:
+      - user
+    claudia:
+      email: claudia@uwaco.net
+      failed_login_attempts: 0 # Will be managed automatically
+      first_name: Claudia
+      last_name: de Luna
+      logged_in: False # Will be managed automatically
+      password: $2b$12$ZhKjgfhdIQyW74RbPiv0Z.Zwfvb87CXWTCCNpkwXPz1L0zh9PDXw.
+      role:
+      - admin
+    jsmith:
+      email: jsmith@uwaco.net
+      failed_login_attempts: 0 # Will be managed automatically
+      first_name: John
+      last_name: Smith
+      logged_in: False # Will be managed automatically
+      password: $2b$12$A0LJ8IQG0KuEUgWY9eGZWuWQCpmr.4lfZ7XIJH2mF8StbcbufcYVq
+      role:
+      - admin
+pre-authorized:
+  emails:
+  - jsmith@uwaco.net
+  - awhite@uwaco.net
+  - admin@uwaco.net
+  - neteng@uwaco.net
+  - claudia@uwaco.net

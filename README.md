@@ -96,8 +96,8 @@ This will be different for every organization.  Examples include:
 - The user may need to also be authorized for a location or a vlan or...
 - Minimum manual input
 - The Vlan must exist and be functional
-- Only "user" ports can be changed
-- These critical vlans cannot be changed
+- Only "user" ports can be changed - how do you determine user ports?
+- These critical vlans cannot be changed - how do you determine critical vlans or any other "guardrail" criteria
 - Changes cannot be made on these dates
 - Only devices in this list of Vendor OUIs can be changed
 - Only these infrastructure switches are available for self service
