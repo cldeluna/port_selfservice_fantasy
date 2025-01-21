@@ -5,7 +5,7 @@
 
 *Claudia de Luna*
 
-![switches_unicorns_rainbows](images/unicorns_rainbows/JPGS/switches_unicorns_rainbows.jpeg)
+![switches_unicorns_rainbows](images/switches_unicorns_rainbows.jpg)
 
 Changing the vlan on a network interface is a common network operations activity and I rarely see this function automated!  I get it.
 
