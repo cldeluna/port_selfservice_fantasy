@@ -112,9 +112,6 @@ def main():
         # Proceed if we have a response
         if namespace_list:
 
-            # Load ENV variables for InfraHub Critical Vlan Check
-            dotenv.load_dotenv()
-
             use_findmydev = st.checkbox("Use results from Find My Device", value=True)
 
             if use_findmydev and dev_dict:

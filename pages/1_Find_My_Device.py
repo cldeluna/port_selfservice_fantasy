@@ -230,22 +230,11 @@ def main():
                         st.info(f"📶 Device {dev_input} is Wireless.")
 
                     # Check to see if the Vlan is a Critical Vlan
-                    st.info("Skipping critical vlan check")
-                    # if dev_vlan:
-                    #     crit_vlan_res = utils.check_critical_vlan(dev_vlan, namespace, debug=False)
-                    #     # st.write(crit_vlan_res.json())
-                    #     critical_vlan_list = list()
-                    #     if crit_vlan_res.json():
-                    #         # st.write(crit_vlan_res.json())
-                    #         for line in crit_vlan_res.json():
-                    #             critical_vlan_list.append(line['critical_vlan'])
-                    #     if dev_vlan in critical_vlan_list:
-                    #         # st.write(critical_vlan_list)
-                    #         st.error(
-                    #             f"Vlan {dev_vlan} is a critical vlan for the site. Self service changes are not supported. Please follow the normal process for any changes.")
+                    st.info("Critical vlan check")
+                    critical_vlan_dict = utils.check_critical_vlan_infrahub(dev_vlan)
 
-                    # else:
-                    #     pass
+                    if critical_vlan_dict["is_critical_vlan"]:
+                        st.warning(f"Vlan {dev_vlan} is a critical vlan!")
 
                     if dev_ip and not is_wlan:
                         ping_result = utils.icmplib_ping(dev_ip)
