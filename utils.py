@@ -13,21 +13,24 @@ __copyright__ = "Copyright (c) 2023 Claudia"
 __license__ = "Python"
 
 
-import dotenv
+
 import os
 import re
 import sys
-import netaddr
-import datetime
+import json
 import time
 import pytz
-import requests
-import streamlit as st
-import pandas as pd
+import pprint
 import socket
 import random
+import dotenv
 import pathlib
 import icmplib
+import netaddr
+import datetime
+import requests
+import pandas as pd
+import streamlit as st
 
 from urllib import parse
 
@@ -1189,10 +1192,11 @@ def check_critical_vlan_infrahub(vlanx, verbose=False):
     for item in vlans:
 
         if re.search("critical", item.role.value, re.IGNORECASE):
-            is_critical_vlan = True
-            vlanid = item.vlan_id.value
-            name = item.name.value
-            role = item.role.value
+            if int(vlanx) == int(item.vlan_id.value):
+                is_critical_vlan = True
+                vlanid = item.vlan_id.value
+                name = item.name.value
+                role = item.role.value
 
     if verbose:
         if is_critical_vlan:
@@ -1259,8 +1263,7 @@ def get_sw_intf_details(swx, intfx, debug=False):
     """
     URI_PATH = "/api/v2/interface/show"
 
-    URL_OPTIONS = f"hostname={swx}&ifname={intfx}&view=latest&columns=%2A&i&ignore_missing_peer=false&reverse=false&include_deleted=false"
-
+    URL_OPTIONS = f"hostname={swx}&ifname={intfx}&view=latest"
     # Send API request, return as JSON
     sq_api_response = try_sq_rest_call(URI_PATH, URL_OPTIONS, debug=False)
     if debug:
@@ -1656,6 +1659,54 @@ def get_random_file(dir_path="assets", ext=".jpeg"):
 
     chosen_file = random.choice(files)
     return str(chosen_file.absolute())
+
+
+def create_std_cr_snow(
+    payload = "",
+    template_id = "b9c8d15147810200e90d87e8dee490f6",
+    short_desc="Cisco DevNet CdL Change Vlan on Port",
+    desc="Required to move device",
+    test_plan="Ping the device on its new IP",
+):
+
+    # Load ENV variables
+    dotenv.load_dotenv()
+
+    instance = os.getenv("SNOW_PDI_INSTANCE")
+    username = os.getenv("SNOW_PDI_USERNAME")
+    password = os.getenv("SNOW_PDI_PASSWORD")
+
+    # API endpoint
+    url = f"https://{instance}/api/now/table/change_request"
+
+    # Headers
+    headers = {"Content-Type": "application/json", "Accept": "application/json"}
+
+    # Payload (adjust fields as needed)
+    payload = {
+        "short_description": short_desc,
+        "template": template_id,  # Sys ID of the template you want to use
+        "description": desc,
+        "test_plan": test_plan,
+        # "work_notes": "These are my work notes",
+        # Add other fields as required
+    }
+
+    # Send POST request
+    response = requests.post(
+        url, auth=(username, password), headers=headers, data=json.dumps(payload)
+    )
+
+    # Check response
+    # A 201 status code is returned when a new resource is created
+    if response.status_code == 201:
+        st.write("Standard Change Request created successfully")
+        # pprint.pprint(response.json())
+    else:
+        st.error(f"Error creating Standard Change Request: {response.status_code}")
+        # print(response.text)
+
+    return response
 
 
 def main():
