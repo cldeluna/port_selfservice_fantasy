@@ -76,7 +76,7 @@ Does this sound like software development? It should because IT IS!
 
 
 
-
+Automate a well known manual process.
 
 ![AnatomyWellKnownChange](images/AnatomyWellKnownChange.png)
 
@@ -110,6 +110,7 @@ This will be different for every organization.  Examples include:
 - If there is an LLDP/CDP Neighbor that is not a phone do not make any changes
 - If the selected vlan is in the "critical vlan" list, do not make any changes
 - if the Device cannot be found with 100% certainty, do not make any changes
+- How do you handle documenting the change?  Automatically open a CR? Automatically close it?
 
 ### 4. System Requirements
 
