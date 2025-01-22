@@ -31,6 +31,8 @@ import icmplib
 
 from urllib import parse
 
+from infrahub_sdk import Config, InfrahubClientSync
+
 # Disable  Unverified HTTPS request is being made to host messages
 requests.packages.urllib3.disable_warnings(
     requests.packages.urllib3.exceptions.InsecureRequestWarning
@@ -1163,6 +1165,49 @@ def check_critical_vlan(vlanx, nsx, debug=False):
         st.write(URL_OPTIONS)
 
     return sq_api_response
+
+
+def check_critical_vlan_infrahub(vlanx, verbose=False):
+
+    # Load ENV variables for InfraHub Critical Vlan Check
+    dotenv.load_dotenv()
+
+    resp_dict = dict()
+
+    # Check to see if the Vlan is a Critical Vlan
+    config = Config(echo_graphql_queries=False)
+    client = InfrahubClientSync(
+        address="https://demo.infrahub.app", config=config
+    )
+
+    vlans = client.all("InfraVLAN")
+
+    is_critical_vlan = False
+    vlanid = ""
+    name = ""
+    role = ""
+    for item in vlans:
+
+        if re.search("critical", item.role.value, re.IGNORECASE):
+            is_critical_vlan = True
+            vlanid = item.vlan_id.value
+            name = item.name.value
+            role = item.role.value
+
+    if verbose:
+        if is_critical_vlan:
+            st.error(
+                f"Vlan {vlanx} is a critical vlan for the site. Self service changes are not supported. Please follow the normal process for any changes."
+            )
+
+    resp_dict.update({
+        "is_critical_vlan": is_critical_vlan,
+        "vlanid": vlanid,
+        "name": name,
+        "role": role
+    })
+
+    return resp_dict
 
 
 def get_switches_in_namespace(ns, filter=None):
