@@ -72,7 +72,7 @@ def main():
         or not st.session_state["authentication_status"]
     ):
         if not st.session_state["authentication_status"]:
-            st.switch_page("SelfServiceApocalypseHome.py")
+            st.switch_page("UserSelfService.py")
 
     # Check authentication
     if not st.session_state.get("authentication_status"):
@@ -246,36 +246,34 @@ def main():
                     st.error(f"This inteface is already configured for vlan {new_vlan}")
                     st.stop()
 
-                st.info("Critical Vlan Check ")
-
                 # Check to see if the Vlan is a Critical Vlan
-                config = Config(echo_graphql_queries=False)
-                client = InfrahubClientSync(
-                    address="https://demo.infrahub.app", config=config
-                )
+                current_sw_intf_details = utils.get_sw_intf_details(sw,intf)
 
-                vlans = client.all("InfraVLAN")
-
-                is_critical_vlan = False
-                vlanid = ""
-                name = ""
-                role = ""
-                for item in vlans:
-
-                    if re.search("critical", item.role.value, re.IGNORECASE):
-                        is_critical_vlan = True
-                        vlanid = item.vlan_id.value
-                        name = item.name.value
-                        role = item.role.value
-
-                if is_critical_vlan:
-                    st.error(
-                        f"Vlan {new_vlan} is a critical vlan for the site. Self service changes are not supported. Please follow the normal process for any changes."
-                    )
-                    st.write(name)
-                    st.write(vlanid)
-                    st.write(role)
+                if current_sw_intf_details.status_code == 200:
+                    if len(current_sw_intf_details.json()) == 1:
+                        intf_dict = current_sw_intf_details.json()[0]
+                        intf_vlan = intf_dict["vlan"]
+                else:
+                    st.error(f"Unable to get interface details for {intf}")
                     st.stop()
+
+                st.info(f"Critical vlan check - Current Interface Vlan ({intf_vlan})")
+
+                critical_vlan_dict = utils.check_critical_vlan_infrahub(intf_vlan)
+                if critical_vlan_dict["is_critical_vlan"]:
+                    st.error(f"Interface is on a critical vlan (Vlan {intf_vlan})! {critical_vlan_dict['role']}. Self service not allowed.")
+                    st.stop()
+                else:
+                    st.markdown(f"*Vlan {intf_vlan} is not a critical vlan*")
+
+                st.info(f"Critical vlan check - New Interface Vlan ({new_vlan})")
+                critical_vlan_dict = utils.check_critical_vlan_infrahub(new_vlan)
+
+                if critical_vlan_dict["is_critical_vlan"]:
+                    st.error(f"Vlan {new_vlan} is a critical vlan! {critical_vlan_dict['role']}. Self service not allowed.")
+                    st.stop()
+                else:
+                    st.markdown(f"*Vlan {new_vlan} is not a critical vlan*")
 
                 st.info("Skipping Spanning Tree Check")
 
@@ -296,8 +294,14 @@ def main():
 
                         if change_vlan:
 
-                            # st.write(st.session_state)
+                            # Service Now Change Control
 
+                            cr_response = utils.create_std_cr_snow(short_desc=f"Cisco DevNet User Self Service Fantasy Change Port Vlan  {sw} {intf} to vlan {new_vlan}")
+
+                            if cr_response:
+                                st.write(cr_response.json()["result"]["task_effective_number"])
+                            else:
+                                st.write("Change Request Not Created")
                             cfg_update = utils.intf_vlan_update_cfg(intf, new_vlan)
                             st.write(
                                 f"Sending the following configuration update to {sw} {intf} and saving configuration to device:"

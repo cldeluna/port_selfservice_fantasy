@@ -53,7 +53,7 @@ def main():
         or not st.session_state["authentication_status"]
     ):
         if not st.session_state["authentication_status"]:
-            st.switch_page("SelfServiceApocalypseHome.py")
+            st.switch_page("UserSelfService.py")
 
     # Check authentication
     if not st.session_state.get("authentication_status"):
@@ -234,7 +234,15 @@ def main():
                     critical_vlan_dict = utils.check_critical_vlan_infrahub(dev_vlan)
 
                     if critical_vlan_dict["is_critical_vlan"]:
-                        st.warning(f"Vlan {dev_vlan} is a critical vlan!")
+                        st.markdown(f"*Vlan {dev_vlan} is a critical vlan! {critical_vlan_dict['role']}*")
+                    else:
+                        st.markdown(f"*Vlan {dev_vlan} is not a critical vlan*")
+
+                    # Show Device Type
+                    st.info(f"Device Type: **{dev_type}**")
+
+                    # Show Device Timestamp
+                    st.info(f"Device Timestamp: **{dev_timestamp}**")
 
                     if dev_ip and not is_wlan:
                         ping_result = utils.icmplib_ping(dev_ip)
