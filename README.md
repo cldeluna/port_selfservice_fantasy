@@ -74,6 +74,12 @@ Does this sound like software development? It should because IT IS!
 
 ![WhatIsNetworkAutomation](images/WhatIsNetworkAutomation.jpg)
 
+
+
+
+
+![AnatomyWellKnownChange](images/AnatomyWellKnownChange.png)
+
 ### 2. The business case for this "service"
 
 General

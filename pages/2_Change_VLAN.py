@@ -249,14 +249,6 @@ def main():
                     st.stop()
 
                 st.info("Skipping Spanning Tree Check")
-                # spanning tree check
-                # stp_check, stp_res = utils.check_stp_switch(new_vlan, sw)
-                # if stp_check:
-                #     st.success(f"Vlan {new_vlan} sees Spanning Tree root and should be functional. Spanning Tree Check sucessful!")
-                # else:
-                #     st.error(f"Vlan {new_vlan} failed Spanning Tree Check.  Please investigate. Process cannot continue.")
-                #     st.write(stp_res)
-                #     st.stop()
 
                 reason = st.text_input("Reason for Change:", value="")
 

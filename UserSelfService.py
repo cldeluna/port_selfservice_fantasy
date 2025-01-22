@@ -26,7 +26,7 @@ import streamlit_authenticator as stauth
 
 
 def main():
-    st.set_page_config(layout="wide", page_title="Self Service Apocalypse", page_icon="🧟‍")
+    st.set_page_config(layout="wide", page_title="Self Service Fantasy", page_icon="images/favicon.ico")
 
     # Initialize session state for authentication status and username
     if 'authentication_status' not in st.session_state:
