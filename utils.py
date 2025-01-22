@@ -32,7 +32,9 @@ import icmplib
 from urllib import parse
 
 # Disable  Unverified HTTPS request is being made to host messages
-requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
+requests.packages.urllib3.disable_warnings(
+    requests.packages.urllib3.exceptions.InsecureRequestWarning
+)
 
 
 def get_ip(fqdn):
@@ -87,7 +89,7 @@ def get_numeric_part_of_intf(intf, debug=False):
     return numeric_intf
 
 
-def try_strptime(s, fmts=['%d-%b-%y', '%m/%d/%Y']):
+def try_strptime(s, fmts=["%d-%b-%y", "%m/%d/%Y"]):
     for fmt in fmts:
         try:
             return datetime.datetime.strptime(s, fmt)
@@ -104,7 +106,7 @@ def convert_string_to_time(date_string, timezone):
     :return:
     """
 
-    date_time_obj = datetime.datetime.strptime(date_string[:26], '%Y-%m-%d %H:%M:%S.%f')
+    date_time_obj = datetime.datetime.strptime(date_string[:26], "%Y-%m-%d %H:%M:%S.%f")
     date_time_obj_timezone = pytz.timezone(timezone).localize(date_time_obj)
 
     return date_time_obj_timezone
@@ -174,37 +176,37 @@ def create_autodetect_devobj(dev, auth_timeout=20, session_log=False, debug=Fals
     dev_obj = {}
 
     if "NET_USR" in os.environ.keys():
-        usr = os.environ['NET_USR']
+        usr = os.environ["NET_USR"]
     else:
         usr = ""
     if "NET_PWD" in os.environ.keys():
-        pwd = os.environ['NET_PWD']
+        pwd = os.environ["NET_PWD"]
     else:
         pwd = ""
 
-    core_dev = r'(ar|as|ds|cs){1}\d\d'
-    dev_obj.update({'ip': dev.strip()})
-    dev_obj.update({'username': usr.strip()})
-    dev_obj.update({'password': pwd.strip()})
-    dev_obj.update({'secret': pwd.strip()})
-    dev_obj.update({'port': 22})
-    dev_obj.update({'auth_timeout': auth_timeout})
-    dev_obj.update({'device_type': 'autodetect'})
+    core_dev = r"(ar|as|ds|cs){1}\d\d"
+    dev_obj.update({"ip": dev.strip()})
+    dev_obj.update({"username": usr.strip()})
+    dev_obj.update({"password": pwd.strip()})
+    dev_obj.update({"secret": pwd.strip()})
+    dev_obj.update({"port": 22})
+    dev_obj.update({"auth_timeout": auth_timeout})
+    dev_obj.update({"device_type": "autodetect"})
     if session_log:
-        dev_obj.update({'session_log': 'netmiko_session_log.txt'})
+        dev_obj.update({"session_log": "netmiko_session_log.txt"})
 
     return dev_obj
 
 
 def os_is():
     # Determine OS to set ping arguments
-    local_os = ''
+    local_os = ""
     if sys.platform == "linux" or sys.platform == "linux2":
-        local_os = 'linux'
+        local_os = "linux"
     elif sys.platform == "darwin":
-        local_os = 'linux'
+        local_os = "linux"
     elif sys.platform == "win32":
-        local_os = 'win'
+        local_os = "win"
 
     return local_os
 
@@ -238,7 +240,7 @@ def try_sq_rest_call(uri_path, url_options, debug=False):
     """
 
     # UWACO Lab
-    API_ACCESS_TOKEN = os.getenv('SQ_API_TOKEN')
+    API_ACCESS_TOKEN = os.getenv("SQ_API_TOKEN")
     API_ENDPOINT = "10.1.10.141"
     API_PORT = "8000"
 
@@ -310,7 +312,7 @@ def find_mac(macx, namespacex, start_time="3 months ago"):
         "macaddr",
         "vlan",
         "flags",
-        "timestamp"
+        "timestamp",
     ]
     columns_str = "".join([f"&columns={i}" for i in col_list])
 
@@ -398,7 +400,10 @@ def process_mac_port(api_response, macx, start_time="6 months ago"):
             if re.search(r"spare", line["hostname"], re.IGNORECASE):
                 continue
 
-            if re.search(r"(\d\/)?(0|1)\/\d", line["oif"]) or line["flags"] == "wcclient":
+            if (
+                re.search(r"(\d\/)?(0|1)\/\d", line["oif"])
+                or line["flags"] == "wcclient"
+            ):
                 if line not in filtered_response_all:
                     filtered_response_all.append(line)
 
@@ -437,8 +442,8 @@ def process_mac_port(api_response, macx, start_time="6 months ago"):
             for line in api_response:
                 # st.write(line)
                 if (
-                        re.search(r"\d\/(0|1)\/\d", line["oif"])
-                        and line["flags"] == "dynamic"
+                    re.search(r"\d\/(0|1)\/\d", line["oif"])
+                    and line["flags"] == "dynamic"
                 ):
                     oif = line["oif"]
                     hn = line["hostname"]
@@ -611,7 +616,9 @@ def get_intf_config(sw, intf, view="latest"):
     section_encoded = parse.quote(f"interface {intf}")
 
     URI_PATH = "/api/v2/devconfig/show"
-    URL_OPTIONS = f"&columns=default&view={view}&hostname={sw}&section={section_encoded}"
+    URL_OPTIONS = (
+        f"&columns=default&view={view}&hostname={sw}&section={section_encoded}"
+    )
 
     sq_api_response = try_sq_rest_call(URI_PATH, URL_OPTIONS)
 
@@ -637,13 +644,11 @@ def check_dhcp_mac(macx, namespacex, view="latest", add_dtrack="true"):
 
     sq_api_response = try_sq_rest_call(URI_PATH, URL_OPTIONS)
 
-
     if sq_api_response.json():
-        if sq_api_response.json()[0]['type'] == "dhcp-snooping":
+        if sq_api_response.json()[0]["type"] == "dhcp-snooping":
             device_uses_dhcp = True
     else:
         device_uses_dhcp = False
-
 
     return sq_api_response, device_uses_dhcp
 
@@ -670,7 +675,7 @@ def check_dhcp_ip(ipx, namespacex, view="latest", add_dtrack="true"):
     return sq_api_response
 
 
-def check_arp_ip(ipx,namespacex,view="latest"):
+def check_arp_ip(ipx, namespacex, view="latest"):
     """
     Check the ARP Table by IP
     """
@@ -683,7 +688,7 @@ def check_arp_ip(ipx,namespacex,view="latest"):
     return sq_api_response
 
 
-def check_arp_mac(macx,namespacex,view="latest"):
+def check_arp_mac(macx, namespacex, view="latest"):
     """
     Check the ARP Table by MAC
     """
@@ -735,19 +740,26 @@ def check_dtrack(addrx, namespacex, view="latest", debug=False):
             "active": true
         }
         ]
-    
+
     """
     ip_address = False
     mac_address = False
 
     # Check if its IP or MAC
     # If its an IP
-    if re.search(r"\b(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\b", addrx):
+    if re.search(
+        r"\b(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\b",
+        addrx,
+    ):
         ip_address = True
         addrx = addrx.replace("'", "")
-    
+
     # is it a MAC
-    elif re.search(r"(([a-fA-F0-9]{2}-){5}[a-fA-F0-9]{2}|([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}|([0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4})?", addrx, re.IGNORECASE):
+    elif re.search(
+        r"(([a-fA-F0-9]{2}-){5}[a-fA-F0-9]{2}|([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}|([0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4})?",
+        addrx,
+        re.IGNORECASE,
+    ):
         mac_address = True
         mac_url_encoded = parse.quote(addrx)
 
@@ -766,7 +778,9 @@ def check_dtrack(addrx, namespacex, view="latest", debug=False):
     if debug:
         st.info(f"Debugging in check_dtrack")
         st.write(f"ip address is {ip_address}")
-        st.write(f"mac address is {mac_address} and url encoded mac is {mac_url_encoded}")
+        st.write(
+            f"mac address is {mac_address} and url encoded mac is {mac_url_encoded}"
+        )
         st.write(f"URL OPTIONS {URL_OPTIONS}")
         st.write(sq_api_response.json())
 
@@ -811,10 +825,9 @@ def check_input(dev_input, namespacex, domain="uwaco.com"):
     dev_mac = ""
     dev_fqdn = ""
 
-
     # Is it a FQDN
     if re.search(domain, dev_input):
-        # FQDN was provided 
+        # FQDN was provided
         # Lookup FQDN and Get IP
         dev_ip = get_ip(dev_input)
         dev_fqdn = dev_input.strip().lower()
@@ -827,19 +840,26 @@ def check_input(dev_input, namespacex, domain="uwaco.com"):
             input_provided = "FQDN"
 
     # is it an IP
-    elif re.search(r"\b(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\b", dev_input):
+    elif re.search(
+        r"\b(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\b",
+        dev_input,
+    ):
         dev_ip = dev_input.strip().lower()
         dev_fqdn = get_host(dev_input)
         st.write(f"IP Address provided, resolves to FQDN {dev_fqdn}")
         # ping_result = utils.icmplib_ping(dev_input)
-        
+
         # Find the MAC from the IP
         dev_mac = find_mac_from_ip(dev_ip, namespacex)
         if dev_ip:
             input_provided = "IPAddress"
-    
+
     # is it a MAC
-    elif re.search(r"(([a-fA-F0-9]{2}-){5}[a-fA-F0-9]{2}|([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}|([0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4})?", dev_input, re.IGNORECASE):
+    elif re.search(
+        r"(([a-fA-F0-9]{2}-){5}[a-fA-F0-9]{2}|([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}|([0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4})?",
+        dev_input,
+        re.IGNORECASE,
+    ):
         dev_ip = find_ip_from_mac(dev_input)
         dev_mac = mac_format(dev_input, "mac_unix_expanded")
         dev_fqdn = get_host(dev_ip)
@@ -857,24 +877,27 @@ def check_input(dev_input, namespacex, domain="uwaco.com"):
             st.write(f"MAC Address {dev_input} provided, resolves to IP {dev_ip}")
             # ping_result = utils.icmplib_ping(dev_ip)
             input_provided = "MACAddress"
-        else:    
+        else:
             st.error(f"Invalid mac format")
 
-
     else:
-        st.error(f"Input for Device is not recognized!  Please enter Fully qualified Domain name, IP Address, or MAC Address.")
+        st.error(
+            f"Input for Device is not recognized!  Please enter Fully qualified Domain name, IP Address, or MAC Address."
+        )
 
     if dev_ip and dev_mac:
         valid_ip_mac_input = True
 
-    result_dict.update({
-        "input_value": dev_input,
-        "input_provided": input_provided,
-        "valid_ip_mac_input": valid_ip_mac_input,
-        "dev_ip": dev_ip,
-        "dev_mac": dev_mac,
-        "dev_fqdn": dev_fqdn
-    })
+    result_dict.update(
+        {
+            "input_value": dev_input,
+            "input_provided": input_provided,
+            "valid_ip_mac_input": valid_ip_mac_input,
+            "dev_ip": dev_ip,
+            "dev_mac": dev_mac,
+            "dev_fqdn": dev_fqdn,
+        }
+    )
 
     return result_dict
 
@@ -985,9 +1008,7 @@ def unix_to_human_local(ts):
         unix_timestamp = int(ts / 1000)
         utc_time = time.gmtime(unix_timestamp)
         local_time = time.localtime(unix_timestamp)
-        human_local_time = (
-            f"{time.strftime('%Y-%m-%d %H:%M:%S', local_time)}"
-        )
+        human_local_time = f"{time.strftime('%Y-%m-%d %H:%M:%S', local_time)}"
     return human_local_time
 
 
@@ -1041,22 +1062,22 @@ def get_vlans_in_namespace(ns):
 
 def build_vlan_df(resp):
 
-    # Find all the vlans 
+    # Find all the vlans
 
     vlan_df = pd.DataFrame(resp.json())
 
-    vlan_df['humanTimestamp'] = vlan_df['timestamp'].apply(unix_to_human_local)
-    vlan_df = vlan_df.drop(columns=['timestamp'])
-    vlan_df['Vlan'] = vlan_df['vlan'].astype(str).str.replace(',', '')
-    vlan_df = vlan_df.drop(vlan_df[vlan_df['state'] == 'unsupported'].index)
-    vlan_df = vlan_df.drop(vlan_df[vlan_df['Vlan'] == '1'].index)
-    vlan_df = vlan_df.drop(vlan_df[vlan_df['Vlan'] == '888'].index)
-    vlan_df = vlan_df[~vlan_df['vlanName'].str.contains('RSPAN', case=False, na=False)]
+    vlan_df["humanTimestamp"] = vlan_df["timestamp"].apply(unix_to_human_local)
+    vlan_df = vlan_df.drop(columns=["timestamp"])
+    vlan_df["Vlan"] = vlan_df["vlan"].astype(str).str.replace(",", "")
+    vlan_df = vlan_df.drop(vlan_df[vlan_df["state"] == "unsupported"].index)
+    vlan_df = vlan_df.drop(vlan_df[vlan_df["Vlan"] == "1"].index)
+    vlan_df = vlan_df.drop(vlan_df[vlan_df["Vlan"] == "888"].index)
+    vlan_df = vlan_df[~vlan_df["vlanName"].str.contains("RSPAN", case=False, na=False)]
 
-    sorted_df = vlan_df.sort_values(by='vlan')
+    sorted_df = vlan_df.sort_values(by="vlan")
 
     # Concatenate vlan and name to provide friendly pick list
-    sorted_df['pick_list'] = sorted_df[['Vlan', 'vlanName']].agg(' - '.join, axis=1)
+    sorted_df["pick_list"] = sorted_df[["Vlan", "vlanName"]].agg(" - ".join, axis=1)
 
     return sorted_df
 
@@ -1100,14 +1121,15 @@ def check_stp_switch(vlanx, switch):
         if sq_api_response.ok:
 
             for line in response_json:
-                if line['portRole'] == "root":
+                if line["portRole"] == "root":
                     vlan_has_stp_root = True
                     root_lod.append(line)
                     break
 
             if not vlan_has_stp_root:
                 st.error(
-                    f"Vlan {vlanx} has {len(response_json)} interfaces in STP for vlan {vlanx} but no root interfaces on {switch}")
+                    f"Vlan {vlanx} has {len(response_json)} interfaces in STP for vlan {vlanx} but no root interfaces on {switch}"
+                )
         else:
             st.error(f"NO RESULTS from API Call")
             st.text(response_json)
@@ -1133,7 +1155,6 @@ def check_critical_vlan(vlanx, nsx, debug=False):
 
     URL_OPTIONS = f"ext_table=critical_vlans&view=latest&namespace={nsx}&columns=default&reverse=false&include_deleted=false&show_exceptions=false"
 
-    
     # Send API request, return as JSON
     sq_api_response = try_sq_rest_call(URI_PATH, URL_OPTIONS, debug=debug)
     if debug:
@@ -1155,7 +1176,7 @@ def get_switches_in_namespace(ns, filter=None):
         # filter based on provided filter
         filtered_resp_lod = list()
         for ldict in sq_api_response.json():
-            if re.search(filter, ldict['hostname']):
+            if re.search(filter, ldict["hostname"]):
                 filtered_resp_lod.append(ldict)
         return filtered_resp_lod
     else:
@@ -1173,7 +1194,6 @@ def get_sw_intf_list(swx, debug=False):
 
     URL_OPTIONS = f"hostname={swx}&view=latest&columns=ifname&ignore_missing_peer=false&reverse=false&include_deleted=false"
 
-    
     # Send API request, return as JSON
     sq_api_response = try_sq_rest_call(URI_PATH, URL_OPTIONS, debug=False)
     if debug:
@@ -1196,7 +1216,6 @@ def get_sw_intf_details(swx, intfx, debug=False):
 
     URL_OPTIONS = f"hostname={swx}&ifname={intfx}&view=latest&columns=%2A&i&ignore_missing_peer=false&reverse=false&include_deleted=false"
 
-    
     # Send API request, return as JSON
     sq_api_response = try_sq_rest_call(URI_PATH, URL_OPTIONS, debug=False)
     if debug:
@@ -1221,8 +1240,8 @@ def get_credentials():
     # Load ENV variables
     dotenv.load_dotenv()
 
-    username = os.getenv('NET_USR')
-    password = os.getenv('NET_PWD')
+    username = os.getenv("NET_USR")
+    password = os.getenv("NET_PWD")
 
     # Validation to ensure variables exist
     if not all([username, password]):
@@ -1267,36 +1286,37 @@ def find_my_dev(dev_input, namespace, include_history_bool=True):
 
     # Initialize dev_search_dict which has all the info on the MAC
     dev_search_dict = dict()
-    dev_search_dict.update({
-        # "namespace_list": namespace_list,
-        "namespace": namespace,
-        "dev_input": dev_input,
-        "dev_ip": dev_ip,
-        "dev_mac": dev_mac,
-        "dev_fqdn": dev_fqdn,
-        "dev_is_alive": dev_is_alive,
-        "dev_oui": "",
-        "nei_bool": False,
-        "nei_res": list(),
-        "dev_sw": dev_sw,
-        "dev_intf": dev_intf,
-        "intf_cfg": "",
-        "dev_uses_dhcp_bool": False,
-        "dhcp_res": list(),
-        "intf_access": "",
-        "intf_trunk": "", 
-        "dev_vlan": dev_vlan,
-        "vlan_name": "",
-        "nac_posture": "",
-        "dev_dtrack_type": dev_type,
-        "dev_dtrack_timestamp": dev_timestamp
-
-    })
+    dev_search_dict.update(
+        {
+            # "namespace_list": namespace_list,
+            "namespace": namespace,
+            "dev_input": dev_input,
+            "dev_ip": dev_ip,
+            "dev_mac": dev_mac,
+            "dev_fqdn": dev_fqdn,
+            "dev_is_alive": dev_is_alive,
+            "dev_oui": "",
+            "nei_bool": False,
+            "nei_res": list(),
+            "dev_sw": dev_sw,
+            "dev_intf": dev_intf,
+            "intf_cfg": "",
+            "dev_uses_dhcp_bool": False,
+            "dhcp_res": list(),
+            "intf_access": "",
+            "intf_trunk": "",
+            "dev_vlan": dev_vlan,
+            "vlan_name": "",
+            "nac_posture": "",
+            "dev_dtrack_type": dev_type,
+            "dev_dtrack_timestamp": dev_timestamp,
+        }
+    )
 
     if dev_input is not None and namespace:
 
         st.markdown(f"### Searching Site {namespace} for Device {dev_input}")
-        
+
         # ----
         # Figure out what was provided in dev_input
         input_type_dict = check_input(dev_input, namespace)
@@ -1305,16 +1325,16 @@ def find_my_dev(dev_input, namespace, include_history_bool=True):
         #     st.warning(f"Missing information. Device not currently on the network. All information will be historical over the last 3 months.")
         #     # st.write(input_type_dict)
 
-        if input_type_dict['dev_fqdn']:
-            dev_fqdn = input_type_dict['dev_fqdn']
+        if input_type_dict["dev_fqdn"]:
+            dev_fqdn = input_type_dict["dev_fqdn"]
 
-        if input_type_dict['dev_ip']:
-            addr = input_type_dict['dev_ip']
-        elif input_type_dict['dev_mac']:
-            addr = str(input_type_dict['dev_mac'])
+        if input_type_dict["dev_ip"]:
+            addr = input_type_dict["dev_ip"]
+        elif input_type_dict["dev_mac"]:
+            addr = str(input_type_dict["dev_mac"])
         else:
             addr = False
-        # st.write(f"addr is {addr}")    
+        # st.write(f"addr is {addr}")
 
         if not addr:
             st.error(f"Cannot resolve {dev_fqdn} to an IP or a MAC")
@@ -1330,31 +1350,32 @@ def find_my_dev(dev_input, namespace, include_history_bool=True):
 
         # dtrack with view=all did not return anything
         # if we got a MAC address, lets look for the mac
-        if not res_addr.json() and input_type_dict['dev_mac']:
+        if not res_addr.json() and input_type_dict["dev_mac"]:
             # This returns a dict
-            res_addr = find_mac(input_type_dict['dev_mac'], namespace, start_time="3 months ago")
-
+            res_addr = find_mac(
+                input_type_dict["dev_mac"], namespace, start_time="3 months ago"
+            )
 
         if type(res_addr) == dict:
             # st.write(res_addr)
             addr_dict = res_addr
-            dev_mac = addr_dict['original_mac']
-            dev_ip = addr_dict['ip_from_mac']
-            dev_vlan = addr_dict['vlan']                             
-            dev_sw = addr_dict['hn']
-            dev_intf = addr_dict['oif']
-            dev_type = addr_dict['flag']
-            dev_timestamp = unix_to_human_local(addr_dict['timestamp'])
+            dev_mac = addr_dict["original_mac"]
+            dev_ip = addr_dict["ip_from_mac"]
+            dev_vlan = addr_dict["vlan"]
+            dev_sw = addr_dict["hn"]
+            dev_intf = addr_dict["oif"]
+            dev_type = addr_dict["flag"]
+            dev_timestamp = unix_to_human_local(addr_dict["timestamp"])
         else:
             if len(res_addr.json()) == 1:
                 addr_dict = res_addr.json()[0]
-                dev_mac = addr_dict['macaddr']
-                dev_ip = addr_dict['ipAddress']
-                dev_vlan = addr_dict['vlan']                             
-                dev_sw = addr_dict['hostname']
-                dev_intf = addr_dict['ifname']
-                dev_type = addr_dict['type']
-                dev_timestamp = unix_to_human_local(addr_dict['timestamp'])
+                dev_mac = addr_dict["macaddr"]
+                dev_ip = addr_dict["ipAddress"]
+                dev_vlan = addr_dict["vlan"]
+                dev_sw = addr_dict["hostname"]
+                dev_intf = addr_dict["ifname"]
+                dev_type = addr_dict["type"]
+                dev_timestamp = unix_to_human_local(addr_dict["timestamp"])
             elif len(res_addr.json()) > 1:
                 st.error("Multiple records found!")
                 st.write(res_addr.json())
@@ -1374,12 +1395,11 @@ def find_my_dev(dev_input, namespace, include_history_bool=True):
         _, vlan_rsp = find_vlan_on_switch(dev_vlan, dev_sw)
 
         if vlan_rsp.json():
-            vlan_name = vlan_rsp.json()[0]['vlanName']
+            vlan_name = vlan_rsp.json()[0]["vlanName"]
         st.info(f"Device is on vlan **{dev_vlan}** ***{vlan_name}***")
         if re.search(r"3\d\d\d", str(dev_vlan)):
             is_wlan = True
             st.info(f"📶 Device {dev_input} is Wireless.")
-
 
         if dev_ip and not is_wlan:
             ping_result = icmplib_ping(dev_ip)
@@ -1396,7 +1416,9 @@ def find_my_dev(dev_input, namespace, include_history_bool=True):
         if dev_mac:
             st.info(f"MAC Address: **{dev_mac}** of type **{dev_oui}**")
             if not is_wlan:
-                st.info(f"Network Location: MAC Address **{dev_mac}** on switch **{dev_sw}** and interface **{dev_intf}**")
+                st.info(
+                    f"Network Location: MAC Address **{dev_mac}** on switch **{dev_sw}** and interface **{dev_intf}**"
+                )
         else:
             st.error("Unable to find MAC on Network!")
 
@@ -1411,19 +1433,20 @@ def find_my_dev(dev_input, namespace, include_history_bool=True):
         else:
             st.warning(f"Unable to ping {dev_ip}")
 
-
         # Check for neighbors on port
         nei_bool, nei_res = find_lldp_nei_on_intf(dev_sw, dev_intf)
         if nei_bool and not is_wlan:
             st.error("Unexpected devices (CDP/LLDP) on interface!")
             nei_df = pd.DataFrame(nei_res.json())
-            nei_df = nei_df.drop(columns=['timestamp'])
+            nei_df = nei_df.drop(columns=["timestamp"])
             st.write(nei_df)
             nei_res_list = list(nei_res.json())
         else:
             nei_res_list = list()
             if not is_wlan:
-                st.success(f"No unexpected CDP/LLDP devices on switch {dev_sw} interface {dev_intf}")
+                st.success(
+                    f"No unexpected CDP/LLDP devices on switch {dev_sw} interface {dev_intf}"
+                )
 
         # Get the configuration of the interface
         intf_res = get_intf_config(dev_sw, dev_intf)
@@ -1448,9 +1471,9 @@ def find_my_dev(dev_input, namespace, include_history_bool=True):
                     intf_access = True
                 if re.search("switchport mode trunk", line):
                     intf_trunk = True
-            
+
             st.info(f"ISE NAC Posture: {nac_posture}")
-        
+
         if include_history_bool:
 
             st.markdown("---")
@@ -1463,9 +1486,11 @@ def find_my_dev(dev_input, namespace, include_history_bool=True):
                 # res_allip = utils.check_dtrack(dev_ip, namespace, view="all", debug=False)
                 # st.write(res_allip.json())
                 dfipall = pd.DataFrame(res_allip.json())
-                dfipall['lastStateChange'] = dfipall['timestamp'].apply(unix_to_human_local)
-                dfipall = dfipall.drop(columns=['timestamp'])
-                dfipall['vlan'] = dfipall['vlan'].astype(str).str.replace(',', '')
+                dfipall["lastStateChange"] = dfipall["timestamp"].apply(
+                    unix_to_human_local
+                )
+                dfipall = dfipall.drop(columns=["timestamp"])
+                dfipall["vlan"] = dfipall["vlan"].astype(str).str.replace(",", "")
                 st.markdown(f"### Device IP History (Last 3 Months)")
                 st.write(dfipall)
             else:
@@ -1478,24 +1503,30 @@ def find_my_dev(dev_input, namespace, include_history_bool=True):
             if dev_mac:
 
                 if type(res_addr) == dict:
-                    dfmacall = pd.DataFrame(res_addr['user_int_lod'])
+                    dfmacall = pd.DataFrame(res_addr["user_int_lod"])
                     if dfmacall.empty:
                         # st.warning(f"MAC {dev_mac} not found")
                         mac_res = check_arp_mac(dev_mac, namespace, view="all")
                         st.write(pd.DataFrame(mac_res.json()))
                     else:
-                        dfmacall['lastStateChange'] = dfmacall['timestamp'].apply(unix_to_human_local)
-                        dfmacall.sort_values(by=['lastStateChange'], inplace=True)
-                        dfmacall = dfmacall.drop(columns=['timestamp'])
-                        dfmacall['vlan'] = dfmacall['vlan'].astype(str).str.replace(',', '')
+                        dfmacall["lastStateChange"] = dfmacall["timestamp"].apply(
+                            unix_to_human_local
+                        )
+                        dfmacall.sort_values(by=["lastStateChange"], inplace=True)
+                        dfmacall = dfmacall.drop(columns=["timestamp"])
+                        dfmacall["vlan"] = (
+                            dfmacall["vlan"].astype(str).str.replace(",", "")
+                        )
                         st.markdown(f"### Device MAC History (Last 3 Months)")
                         st.write(dfmacall)
                 else:
                     res_allmac = check_dtrack(dev_mac, namespace, view="all")
                     dfmacall = pd.DataFrame(res_allmac.json())
-                    dfmacall['lastStateChange'] = dfmacall['timestamp'].apply(unix_to_human_local)
-                    sfmacall = dfmacall['timestamp'].sort_values()
-                    dfmacall = dfmacall.drop(columns=['timestamp'])
+                    dfmacall["lastStateChange"] = dfmacall["timestamp"].apply(
+                        unix_to_human_local
+                    )
+                    sfmacall = dfmacall["timestamp"].sort_values()
+                    dfmacall = dfmacall.drop(columns=["timestamp"])
                     st.markdown(f"### Device MAC History (Last 3 Months)")
                     st.write(dfmacall)
 
@@ -1512,31 +1543,32 @@ def find_my_dev(dev_input, namespace, include_history_bool=True):
         if ping_result:
             dev_is_alive = ping_result.is_alive
 
-        dev_search_dict.update({
-            # "namespace_list": namespace_list,
-            "namespace": namespace,
-            "dev_input": dev_input,
-            "dev_ip": dev_ip,
-            "dev_mac": dev_mac,
-            "dev_fqdn": dev_fqdn,
-            "dev_is_alive": dev_is_alive,
-            "dev_oui": dev_oui,
-            "nei_bool": nei_bool,
-            "nei_res": nei_res_list,
-            "dev_sw": dev_sw,
-            "dev_intf": dev_intf,
-            "intf_cfg": intf_cfg,
-            "dev_uses_dhcp_bool": dev_uses_dhcp_bool,
-            "dhcp_res": dhcp_res_list,
-            "intf_access": intf_access,
-            "intf_trunk": intf_trunk, 
-            "dev_vlan": dev_vlan,
-            "vlan_name": vlan_name,
-            "nac_posture": nac_posture,
-            "dev_dtrack_type":dev_type,
-            "dev_dtrack_timestamp": dev_timestamp
-
-        })
+        dev_search_dict.update(
+            {
+                # "namespace_list": namespace_list,
+                "namespace": namespace,
+                "dev_input": dev_input,
+                "dev_ip": dev_ip,
+                "dev_mac": dev_mac,
+                "dev_fqdn": dev_fqdn,
+                "dev_is_alive": dev_is_alive,
+                "dev_oui": dev_oui,
+                "nei_bool": nei_bool,
+                "nei_res": nei_res_list,
+                "dev_sw": dev_sw,
+                "dev_intf": dev_intf,
+                "intf_cfg": intf_cfg,
+                "dev_uses_dhcp_bool": dev_uses_dhcp_bool,
+                "dhcp_res": dhcp_res_list,
+                "intf_access": intf_access,
+                "intf_trunk": intf_trunk,
+                "dev_vlan": dev_vlan,
+                "vlan_name": vlan_name,
+                "nac_posture": nac_posture,
+                "dev_dtrack_type": dev_type,
+                "dev_dtrack_timestamp": dev_timestamp,
+            }
+        )
 
     return dev_search_dict
 
@@ -1550,8 +1582,7 @@ interface {intf}
   no shutdown
     """
 
-
-    return new_intf.strip().split('\n')
+    return new_intf.strip().split("\n")
 
 
 def get_random_file(dir_path="assets", ext=".jpeg"):
@@ -1573,7 +1604,7 @@ def get_random_file(dir_path="assets", ext=".jpeg"):
     assets_path = frontend_dir / dir_path
 
     # Get all files with the specified extension
-    files = list(assets_path.glob(f'*{ext}'))
+    files = list(assets_path.glob(f"*{ext}"))
 
     if not files:
         return None
@@ -1587,5 +1618,5 @@ def main():
 
 
 # Standard call to the main() function.
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

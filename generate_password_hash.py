@@ -10,13 +10,10 @@ import bcrypt
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
+
 def main():
     # Generate hashes for our test users
-    passwords = {
-        'jsmith': 'admin123',
-        'awhite': 'admin123',
-        'claudia': 'admin123'
-    }
+    passwords = {"jsmith": "admin123", "awhite": "admin123", "claudia": "admin123"}
 
     for username, password in passwords.items():
         hashed = hash_password(password)
@@ -25,5 +22,5 @@ def main():
 
 
 # Standard call to the main() function.
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

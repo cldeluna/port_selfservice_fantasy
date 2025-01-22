@@ -22,6 +22,7 @@ import sys
 from pathlib import Path
 from typing import Dict, Any
 import streamlit_authenticator as stauth
+
 # Add the frontend directory to the path if needed
 root_dir = Path(__file__).parent.parent
 if str(root_dir) not in sys.path:
@@ -32,30 +33,35 @@ import utils
 
 def main():
 
-    st.set_page_config(layout="wide", page_title="Self Service Fantasy", page_icon="images/favicon.ico")
+    st.set_page_config(
+        layout="wide", page_title="Self Service Fantasy", page_icon="images/favicon.ico"
+    )
 
     # Load configuration file
-    with open('config/config.yaml') as file:
+    with open("config/config.yaml") as file:
         config = yaml.load(file, Loader=yaml.SafeLoader)
 
     authenticator = stauth.Authenticate(
         config["credentials"],
         config["cookie"]["name"],
         config["cookie"]["key"],
-        config["cookie"]["expiry_days"]
+        config["cookie"]["expiry_days"],
     )
 
-    if 'authentication_status' not in st.session_state or not st.session_state['authentication_status']:
-        if not st.session_state['authentication_status']:
+    if (
+        "authentication_status" not in st.session_state
+        or not st.session_state["authentication_status"]
+    ):
+        if not st.session_state["authentication_status"]:
             st.switch_page("SelfServiceApocalypseHome.py")
 
     # Check authentication
-    if not st.session_state.get('authentication_status'):
-        st.error('Please login from the home page')
+    if not st.session_state.get("authentication_status"):
+        st.error("Please login from the home page")
         st.stop()
 
-    if st.session_state['authentication_status']:
-        st.title('Find Device')
+    if st.session_state["authentication_status"]:
+        st.title("Find Device")
 
         # st.write(st.session_state['sq_access_token'])
 
@@ -64,7 +70,9 @@ def main():
             st.session_state.dev_search_dict = dict()
 
         # Display navigation image in sidebar
-        randomf = utils.get_random_file(dir_path=os.path.join(root_dir,"images"), ext=".jpeg")
+        randomf = utils.get_random_file(
+            dir_path=os.path.join(root_dir, "images"), ext=".jpeg"
+        )
         if randomf:
             try:
                 st.sidebar.image(randomf, use_container_width=True)
@@ -92,7 +100,10 @@ def main():
             # User interactive Selectbox to Select Namespace
             namespace = st.selectbox("Select Location", namespace_list, index=None)
 
-            dev_input = st.text_input("Enter FQDN, IP, or MAC of device you would like to locate on the network", value="")
+            dev_input = st.text_input(
+                "Enter FQDN, IP, or MAC of device you would like to locate on the network",
+                value="",
+            )
 
             button_label = f"Find Device {dev_input}"
             with st.form(key="DEVICE_LOOKUP"):
@@ -118,7 +129,9 @@ def main():
 
                 if lookup_option and (dev_input is not None and namespace):
 
-                    st.markdown(f"### Searching Site {namespace} for Device {dev_input}")
+                    st.markdown(
+                        f"### Searching Site {namespace} for Device {dev_input}"
+                    )
 
                     # ----
                     # Figure out what was provided in dev_input
@@ -129,13 +142,13 @@ def main():
                     #     st.warning(f"Missing information. Device not currently on the network. All information will be historical over the last 3 months.")
                     #     # st.write(input_type_dict)
 
-                    if input_type_dict['dev_fqdn']:
-                        dev_fqdn = input_type_dict['dev_fqdn']
+                    if input_type_dict["dev_fqdn"]:
+                        dev_fqdn = input_type_dict["dev_fqdn"]
 
-                    if input_type_dict['dev_ip']:
-                        addr = input_type_dict['dev_ip']
-                    elif input_type_dict['dev_mac']:
-                        addr = str(input_type_dict['dev_mac'])
+                    if input_type_dict["dev_ip"]:
+                        addr = input_type_dict["dev_ip"]
+                    elif input_type_dict["dev_mac"]:
+                        addr = str(input_type_dict["dev_mac"])
                     else:
                         addr = False
                     # st.write(f"addr is {addr}")
@@ -155,32 +168,40 @@ def main():
 
                     # dtrack with view=all did not return anything
                     # if we got a MAC address, lets look for the mac
-                    if input_type_dict['dev_mac']:
+                    if input_type_dict["dev_mac"]:
                         # This returns a dict
 
-                        res_addr = utils.find_mac(input_type_dict['dev_mac'], namespace, start_time="1 day ago")
+                        res_addr = utils.find_mac(
+                            input_type_dict["dev_mac"],
+                            namespace,
+                            start_time="1 day ago",
+                        )
                         # st.write(res_addr)
                     if type(res_addr) == dict:
                         # st.write(res_addr)
                         addr_dict = res_addr
-                        dev_mac = addr_dict['original_mac']
-                        dev_ip = addr_dict['ip_from_mac']
-                        dev_vlan = addr_dict['vlan']
-                        dev_sw = addr_dict['hn']
-                        dev_intf = addr_dict['oif']
-                        dev_type = addr_dict['flag']
-                        dev_timestamp = utils.unix_to_human_local(addr_dict['timestamp'])
+                        dev_mac = addr_dict["original_mac"]
+                        dev_ip = addr_dict["ip_from_mac"]
+                        dev_vlan = addr_dict["vlan"]
+                        dev_sw = addr_dict["hn"]
+                        dev_intf = addr_dict["oif"]
+                        dev_type = addr_dict["flag"]
+                        dev_timestamp = utils.unix_to_human_local(
+                            addr_dict["timestamp"]
+                        )
                     else:
                         if len(res_addr.json()) == 1:
                             # st.write(res_addr.json())
                             addr_dict = res_addr.json()[0]
-                            dev_mac = addr_dict['macaddr']
-                            dev_ip = addr_dict['ipAddress']
-                            dev_vlan = addr_dict['vlan']
-                            dev_sw = addr_dict['hostname']
-                            dev_intf = addr_dict['ifname']
-                            dev_type = addr_dict['type']
-                            dev_timestamp = utils.unix_to_human_local(addr_dict['timestamp'])
+                            dev_mac = addr_dict["macaddr"]
+                            dev_ip = addr_dict["ipAddress"]
+                            dev_vlan = addr_dict["vlan"]
+                            dev_sw = addr_dict["hostname"]
+                            dev_intf = addr_dict["ifname"]
+                            dev_type = addr_dict["type"]
+                            dev_timestamp = utils.unix_to_human_local(
+                                addr_dict["timestamp"]
+                            )
                         elif len(res_addr.json()) > 1:
                             st.error("Multiple records found!")
                             st.write(res_addr.json())
@@ -191,7 +212,9 @@ def main():
                             st.stop()
 
                         if re.search("dhcp", dev_type):
-                            st.info(f"Device is configured to obtain its IP Address via DHCP")
+                            st.info(
+                                f"Device is configured to obtain its IP Address via DHCP"
+                            )
                         else:
                             st.info(f"Device IP Address may be hardcoded")
 
@@ -200,7 +223,7 @@ def main():
                     _, vlan_rsp = utils.find_vlan_on_switch(dev_vlan, dev_sw)
 
                     if vlan_rsp.json():
-                        vlan_name = vlan_rsp.json()[0]['vlanName']
+                        vlan_name = vlan_rsp.json()[0]["vlanName"]
                     st.info(f"Device is on vlan **{dev_vlan}** ***{vlan_name}***")
                     if re.search(r"3\d\d\d", str(dev_vlan)):
                         is_wlan = True
@@ -231,7 +254,9 @@ def main():
                     dev_oui = utils.get_oui(dev_mac)
 
                     if dev_fqdn:
-                        dev_fqdn_msg = f"Found FQDN **{dev_fqdn}** in DNS for IP  {dev_ip}"
+                        dev_fqdn_msg = (
+                            f"Found FQDN **{dev_fqdn}** in DNS for IP  {dev_ip}"
+                        )
                     else:
                         dev_fqdn_msg = f"Unable to find DNS record for IP {dev_ip}"
                     st.info(f"DNS: {dev_fqdn_msg}")
@@ -240,7 +265,8 @@ def main():
                         st.info(f"MAC Address: **{dev_mac}** of type **{dev_oui}**")
                         if not is_wlan:
                             st.info(
-                                f"Network Location: MAC Address **{dev_mac}** on switch **{dev_sw}** and interface **{dev_intf}**")
+                                f"Network Location: MAC Address **{dev_mac}** on switch **{dev_sw}** and interface **{dev_intf}**"
+                            )
 
                             # Show Interface Configuration
                             st.info(f"Current Interface Configuration")
@@ -265,11 +291,13 @@ def main():
                     if nei_bool and not is_wlan:
                         st.error("Unexpected devices (CDP/LLDP) on interface!")
                         nei_df = pd.DataFrame(nei_res.json())
-                        nei_df = nei_df.drop(columns=['timestamp'])
+                        nei_df = nei_df.drop(columns=["timestamp"])
                         st.write(nei_df)
                     else:
                         if not is_wlan:
-                            st.success(f"No unexpected CDP/LLDP devices on switch {dev_sw} interface {dev_intf}")
+                            st.success(
+                                f"No unexpected CDP/LLDP devices on switch {dev_sw} interface {dev_intf}"
+                            )
 
                     # Get the configuration of the interface
                     # intf_res = utils.get_intf_config(dev_sw, dev_intf)
@@ -288,7 +316,9 @@ def main():
 
                         st.markdown("---")
 
-                        res_allip = utils.check_dtrack(dev_ip, namespace, view="all", debug=False)
+                        res_allip = utils.check_dtrack(
+                            dev_ip, namespace, view="all", debug=False
+                        )
                         st.write(res_allip.json())
 
                         if dev_ip and res_allip.json():
@@ -296,37 +326,55 @@ def main():
                             # res_allip = utils.check_dtrack(dev_ip, namespace, view="all", debug=False)
                             # st.write(res_allip.json())
                             dfipall = pd.DataFrame(res_allip.json())
-                            dfipall['lastStateChange'] = dfipall['timestamp'].apply(utils.unix_to_human_local)
-                            dfipall = dfipall.drop(columns=['timestamp'])
+                            dfipall["lastStateChange"] = dfipall["timestamp"].apply(
+                                utils.unix_to_human_local
+                            )
+                            dfipall = dfipall.drop(columns=["timestamp"])
                             st.markdown(f"### Device IP History (Last 3 Months)")
                             st.write(dfipall)
                         else:
                             if dev_ip:
                                 # Look up ARP
-                                arp_res = utils.check_arp_ip(dev_ip, namespace, view="all")
-                                st.markdown(f"### Device ARP IP History (Last 3 Months)")
+                                arp_res = utils.check_arp_ip(
+                                    dev_ip, namespace, view="all"
+                                )
+                                st.markdown(
+                                    f"### Device ARP IP History (Last 3 Months)"
+                                )
                                 st.write(pd.DataFrame(arp_res.json()))
 
                         if dev_mac:
 
                             if type(res_addr) == dict:
-                                dfmacall = pd.DataFrame(res_addr['user_int_lod'])
+                                dfmacall = pd.DataFrame(res_addr["user_int_lod"])
                                 if dfmacall.empty:
                                     # st.warning(f"MAC {dev_mac} not found")
-                                    mac_res = utils.check_arp_mac(dev_mac, namespace, view="all")
+                                    mac_res = utils.check_arp_mac(
+                                        dev_mac, namespace, view="all"
+                                    )
                                     st.write(pd.DataFrame(mac_res.json()))
                                 else:
-                                    dfmacall['lastStateChange'] = dfmacall['timestamp'].apply(utils.unix_to_human_local)
-                                    dfmacall.sort_values(by=['lastStateChange'], inplace=True)
-                                    dfmacall = dfmacall.drop(columns=['timestamp'])
-                                    st.markdown(f"### Device MAC History (Last 3 Months)")
+                                    dfmacall["lastStateChange"] = dfmacall[
+                                        "timestamp"
+                                    ].apply(utils.unix_to_human_local)
+                                    dfmacall.sort_values(
+                                        by=["lastStateChange"], inplace=True
+                                    )
+                                    dfmacall = dfmacall.drop(columns=["timestamp"])
+                                    st.markdown(
+                                        f"### Device MAC History (Last 3 Months)"
+                                    )
                                     st.write(dfmacall)
                             else:
-                                res_allmac = utils.check_dtrack(dev_mac, namespace, view="all")
+                                res_allmac = utils.check_dtrack(
+                                    dev_mac, namespace, view="all"
+                                )
                                 dfmacall = pd.DataFrame(res_allmac.json())
-                                dfmacall['lastStateChange'] = dfmacall['timestamp'].apply(utils.unix_to_human_local)
-                                sfmacall = dfmacall['timestamp'].sort_values()
-                                dfmacall = dfmacall.drop(columns=['timestamp'])
+                                dfmacall["lastStateChange"] = dfmacall[
+                                    "timestamp"
+                                ].apply(utils.unix_to_human_local)
+                                sfmacall = dfmacall["timestamp"].sort_values()
+                                dfmacall = dfmacall.drop(columns=["timestamp"])
                                 st.markdown(f"### Device MAC History (Last 3 Months)")
                                 st.write(dfmacall)
 
@@ -339,41 +387,43 @@ def main():
                     if ping_result:
                         dev_is_alive = ping_result.is_alive
 
-                    dev_search_dict.update({
-                        "namespace_list": namespace_list,
-                        "namespace": namespace,
-                        "dev_input": dev_input,
-                        "dev_ip": dev_ip,
-                        "dev_mac": dev_mac,
-                        "dev_fqdn": dev_fqdn,
-                        "dev_is_alive": dev_is_alive,
-                        "dev_oui": dev_oui,
-                        "nei_bool": nei_bool,
-                        "nei_res": nei_res,
-                        "dev_sw": dev_sw,
-                        "dev_intf": dev_intf,
-                        # "intf_cfg": intf_cfg,
-                        # "dev_uses_dhcp_bool": dev_uses_dhcp_bool,
-                        # "dhcp_res": dhcp_res,
-                        # "intf_access": intf_access,
-                        # "intf_trunk": intf_trunk,
-                        "dev_vlan": dev_vlan,
-                        "vlan_name": vlan_name,
-                        # "nac_posture": nac_posture,
-                        "dev_dtrack_type": dev_type,
-                        "dev_dtrack_timestamp": dev_timestamp
-
-                    })
-
-
+                    dev_search_dict.update(
+                        {
+                            "namespace_list": namespace_list,
+                            "namespace": namespace,
+                            "dev_input": dev_input,
+                            "dev_ip": dev_ip,
+                            "dev_mac": dev_mac,
+                            "dev_fqdn": dev_fqdn,
+                            "dev_is_alive": dev_is_alive,
+                            "dev_oui": dev_oui,
+                            "nei_bool": nei_bool,
+                            "nei_res": nei_res,
+                            "dev_sw": dev_sw,
+                            "dev_intf": dev_intf,
+                            # "intf_cfg": intf_cfg,
+                            # "dev_uses_dhcp_bool": dev_uses_dhcp_bool,
+                            # "dhcp_res": dhcp_res,
+                            # "intf_access": intf_access,
+                            # "intf_trunk": intf_trunk,
+                            "dev_vlan": dev_vlan,
+                            "vlan_name": vlan_name,
+                            # "nac_posture": nac_posture,
+                            "dev_dtrack_type": dev_type,
+                            "dev_dtrack_timestamp": dev_timestamp,
+                        }
+                    )
 
                     st.session_state.dev_search_dict = dev_search_dict
 
                 else:
-                    st.error(f"Make sure to Select a Location and Enter and IP, MAC, or FQDN")
+                    st.error(
+                        f"Make sure to Select a Location and Enter and IP, MAC, or FQDN"
+                    )
         # Add helpful examples
         with st.expander("See Examples"):
-            st.markdown("""
+            st.markdown(
+                """
             ### Valid Input Examples:
             - **IP Address**: 
                 - 192.168.1.1
@@ -389,8 +439,10 @@ def main():
                 - 00e0.4c36.019e (Laptop)
                 - e0:51:d8:15:71:22 (NUC Mini)
 
-            """)
+            """
+            )
+
 
 # Standard call to the main() function.
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
