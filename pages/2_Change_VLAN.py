@@ -26,6 +26,8 @@ import pandas as pd
 from pathlib import Path
 import streamlit_authenticator as stauth
 
+from infrahub_sdk import Config, InfrahubClientSync
+
 # Add the frontend directory to the path if needed
 root_dir = Path(__file__).parent.parent
 if str(root_dir) not in sys.path:
@@ -41,9 +43,10 @@ def sort_key(interface):
         return int(match.group(1))  # Extract the matched number as an integer
     return float('inf')  # Default value if no match is found (unlikely here)
 
+
 def main():
     # Use the full page instead of a narrow central column
-    st.set_page_config(layout="wide", page_title="Change Interface Vlan", page_icon="🧟‍")
+    st.set_page_config(layout="wide", page_title="Self Service Fantasy", page_icon="images/favicon.ico")
 
     # Set Session State
     if "dev_search_dict" in st.session_state:
@@ -102,6 +105,9 @@ def main():
         # Proceed if we have a response
         if namespace_list:
 
+            # Load ENV variables for InfraHub Critical Vlan Check
+            dotenv.load_dotenv()
+
             use_findmydev = st.checkbox("Use results from Find My Device", value=True)
 
             if use_findmydev and dev_dict:
@@ -140,7 +146,7 @@ def main():
                 # Extract the list of 'hostname' values
                 sw_list = [item['hostname'] for item in sw_list_response.json()]
 
-                if use_findmydev and sw_list and sw:
+                if use_findmydev and sw_list and sw and sw != "NOT FOUND":
                     sw_index = sw_list.index(sw)
                 else:
                     sw_index = None
@@ -215,18 +221,32 @@ def main():
                     st.error(f"This inteface is already configured for vlan {new_vlan}")
                     st.stop()
 
-                st.info("Skipping Critical Vlan Check")
+                st.info("Critical Vlan Check ")
+
                 # Check to see if the Vlan is a Critical Vlan
-                # critical_vlan_list = list()
-                # crit_vlan_res = utils.check_critical_vlan(new_vlan, namespace, debug=False)
-                # if crit_vlan_res.json():
-                #     # st.write(crit_vlan_res.json())
-                #     for line in crit_vlan_res.json():
-                #         critical_vlan_list.append(line['critical_vlan'])
-                # if new_vlan in critical_vlan_list:
-                #     # st.write(critical_vlan_list)
-                #     st.error(f"Vlan {new_vlan} is a critical vlan for the site. Self service changes are not supported. Please follow the normal process for any changes.")
-                #     st.stop()
+                config = Config(echo_graphql_queries=False)
+                client = InfrahubClientSync(address="https://demo.infrahub.app", config=config)
+
+                vlans = client.all("InfraVLAN")
+
+                is_critical_vlan = False
+                vlanid = ""
+                name = ""
+                role = ""
+                for item in vlans:
+
+                    if re.search("critical", item.role.value, re.IGNORECASE):
+                        is_critical_vlan = True
+                        vlanid = item.vlan_id.value
+                        name = item.name.value
+                        role = item.role.value
+
+                if is_critical_vlan:
+                    st.error(f"Vlan {new_vlan} is a critical vlan for the site. Self service changes are not supported. Please follow the normal process for any changes.")
+                    st.write(name)
+                    st.write(vlanid)
+                    st.write(role)
+                    st.stop()
 
                 st.info("Skipping Spanning Tree Check")
                 # spanning tree check

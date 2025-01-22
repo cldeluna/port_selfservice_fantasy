@@ -84,6 +84,9 @@ def add_new_user(config: Dict, username: str, email: str, name: str, password: s
 
 
 def main():
+
+    st.set_page_config(layout="wide", page_title="Self Service Fantasy", page_icon="images/favicon.ico")
+
     if not st.session_state.get('authentication_status'):
         st.error('Please log in to access this page')
         return

@@ -32,7 +32,7 @@ import utils
 
 def main():
 
-    st.set_page_config(layout="wide", page_title="Find My Device", page_icon="🧟‍️")
+    st.set_page_config(layout="wide", page_title="Self Service Fantasy", page_icon="images/favicon.ico")
 
     # Load configuration file
     with open('config/config.yaml') as file:
@@ -241,6 +241,11 @@ def main():
                         if not is_wlan:
                             st.info(
                                 f"Network Location: MAC Address **{dev_mac}** on switch **{dev_sw}** and interface **{dev_intf}**")
+
+                            # Show Interface Configuration
+                            st.info(f"Current Interface Configuration")
+                            intf_cfg = utils.get_intf_config(dev_sw, dev_intf)
+                            st.write(intf_cfg.json())
                     else:
                         st.error("Unable to find MAC on Network!")
 
@@ -277,22 +282,6 @@ def main():
 
                     # Check ISE Posture
                     st.info("Skipping NAC Posture check")
-
-                    # nac_posture = "Undetermined"
-                    # intf_access = False
-                    # intf_trunk = False
-                    # if not is_wlan:
-                    #     for line in intf_cfg.splitlines():
-                    #         if re.search("ip access-group ISE-ACL-ALLOW", line):
-                    #             nac_posture = f"interface {dev_intf} in **MONITOR** mode"
-                    #         if re.search("ip access-group ISE-ACL-DEFAULT", line):
-                    #             nac_posture = f"interface {dev_intf} in **ENFORCEMENT** mode"
-                    #         if re.search("switchport mode access", line):
-                    #             intf_access = True
-                    #         if re.search("switchport mode trunk", line):
-                    #             intf_trunk = True
-                    #
-                    #     st.info(f"ISE NAC Posture: {nac_posture}")
 
                     st.info("Skipping Device History check")
                     if include_history_bool:
@@ -390,6 +379,7 @@ def main():
                 - 192.168.1.1
                 - 203.0.113.51 (Laptop)
                 - 203.0.113.52 (Camera)
+                - 198.51.100.50 (NUC Mini)
             - **FQDN**: server1.uwaco.net
             - **MAC Address**: 
                 - AA:BB:CC:DD:EE:FF
@@ -397,6 +387,7 @@ def main():
                 - AABBCCDDEEFF
                 - 0080.f083.2f08 (Camera)
                 - 00e0.4c36.019e (Laptop)
+                - e0:51:d8:15:71:22 (NUC Mini)
 
             """)
 
