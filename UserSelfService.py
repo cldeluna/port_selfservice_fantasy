@@ -59,14 +59,16 @@ def main():
     except Exception as e:
         st.error(e)
 
+    # Examples
     # st.write(st.session_state['authentication_status'])
     # st.write(st.session_state['username'])
     # st.write(st.session_state['roles'])
 
     if st.session_state["authentication_status"]:
         # Successful login
+
+        # Present the Logout Button on the sidebar
         authenticator.logout("Logout", "sidebar")
-        # authenticator.logout()
         st.write(f'Welcome *{st.session_state["name"]}*')
 
         # Display navigation image in sidebar

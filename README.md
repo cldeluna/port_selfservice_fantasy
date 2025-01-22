@@ -140,19 +140,23 @@ The system interfaces:
 
 ### 5. Review of the functional components 
 
-| Component                               | Product or System                                |
-| --------------------------------------- | ------------------------------------------------ |
-| Code Base Repository                    | Python in GitHub Repository                      |
-| Ticketing system                        | Service Now (Developer Instance)                 |
-| Observability System                    | SuzieQ                                           |
-| Intent Data Store                       | Suzieq Enterprise ("off label") InfraHub or YAML |
-| Authentication System (production only) | Streamlit                                        |
-| Web Server (production only)            | Streamlit                                        |
+| Component             | Product or System                                            |
+| --------------------- | ------------------------------------------------------------ |
+| Code Base Repository  | Python in GitHub Repository                                  |
+| Ticketing system      | Service Now (Developer Instance)                             |
+| Observability System  | SuzieQ                                                       |
+| Intent Data Store     | Suzieq Enterprise ("off label") **OpsMill InfraHub** or YAML/JSON |
+| Authentication System | Streamlit (Demo Only)                                        |
+| Web Server            | Streamlit (Demo Only but with Nginx can work in production)  |
 
 
 ### 6. Implementation
 
-Slides, Code Review, and Discussion
+Code Review and Discussion
+
+
+
+![components](images/components.jpg)
 
 ### 7. Lessons Learned
 
@@ -166,3 +170,8 @@ Slides, Code Review, and Discussion
 
 
 
+### 8. Next Steps
+
+1. API
+
+   
